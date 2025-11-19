@@ -53,7 +53,14 @@ O painel ficará acessível em [http://localhost:3000](http://localhost:3000).
 | `EDITAR_EVENTO_WEBHOOK` | Webhook para criar/editar evento |
 | `DELETAR_EVENTO_WEBHOOK` | Webhook para excluir evento |
 | `ID_AGENDAS_WEBHOOK` | Webhook para listar/gerenciar calendários |
+| `MARCAR_EVENTO_WEBHOOK` | Webhook para agendar horários |
+| `MARCAR_FERIADO_WEBHOOK` | Webhook para marcar feriados |
 | `DEFAULT_TIMEZONE` | Fuso horário padrão (ex.: `America/Sao_Paulo`) |
+| `NEXT_PUBLIC_DEFAULT_TIMEZONE` | Fuso horário público (opcional) |
+
+## Deploy no Coolify
+
+Veja o arquivo [coolify.md](./coolify.md) para instruções detalhadas de deploy.
 
 ## Próximos passos
 
