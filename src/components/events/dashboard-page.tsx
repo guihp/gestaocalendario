@@ -568,7 +568,9 @@ export function DashboardPage() {
         calendarId={effectiveFilters.calendarId}
         event={selectedEvent}
         onClose={() => setModalOpen(false)}
-        onSubmit={({ eventId, data }) => saveEventMutation.mutateAsync({ eventId, data })}
+        onSubmit={async ({ eventId, data }) => {
+          await saveEventMutation.mutateAsync({ eventId, data });
+        }}
       />
 
       <ConfirmDialog
@@ -601,8 +603,8 @@ export function DashboardPage() {
         date={slotDate}
         calendarName={activeCalendar?.name}
         onClose={() => setSlotDate(null)}
-        onConfirm={({ start, end, title, contactName, description }) =>
-          quickScheduleMutation.mutateAsync({
+        onConfirm={async ({ start, end, title, contactName, description }) => {
+          await quickScheduleMutation.mutateAsync({
             start,
             end,
             calendarId: effectiveFilters.calendarId,
@@ -610,14 +612,16 @@ export function DashboardPage() {
             title,
             contactName,
             description,
-          })
-        }
+          });
+        }}
       />
 
       <CreateCalendarModal
         open={isCreateCalendarModalOpen}
         onClose={() => setCreateCalendarModalOpen(false)}
-        onSubmit={(name) => createCalendarMutation.mutateAsync(name)}
+        onSubmit={async (name) => {
+          await createCalendarMutation.mutateAsync(name);
+        }}
       />
 
       <Modal

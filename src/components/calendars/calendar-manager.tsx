@@ -136,9 +136,18 @@ export function CalendarManager() {
                 </tr>
               </thead>
               <tbody>
-                {(calendarsQuery.isLoading ? Array.from({ length: 3 }) : calendars).map(
-                  (calendar, index) =>
-                    calendar ? (
+                {calendarsQuery.isLoading
+                  ? Array.from({ length: 3 }).map((_, index) => (
+                      <tr key={index} className="border-t border-zinc-100">
+                        <td className="px-6 py-4" colSpan={5}>
+                          <div className="flex animate-pulse gap-3">
+                            <div className="h-4 w-32 rounded-full bg-zinc-200" />
+                            <div className="h-4 w-48 rounded-full bg-zinc-100" />
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  : calendars.map((calendar) => (
                       <tr
                         key={calendar.id}
                         className="border-t border-zinc-100 text-sm text-zinc-600"
@@ -161,17 +170,7 @@ export function CalendarManager() {
                           </Button>
                         </td>
                       </tr>
-                    ) : (
-                      <tr key={index} className="border-t border-zinc-100">
-                        <td className="px-6 py-4" colSpan={5}>
-                          <div className="flex animate-pulse gap-3">
-                            <div className="h-4 w-32 rounded-full bg-zinc-200" />
-                            <div className="h-4 w-48 rounded-full bg-zinc-100" />
-                          </div>
-                        </td>
-                      </tr>
-                    ),
-                )}
+                    ))}
               </tbody>
             </table>
           </div>
@@ -185,7 +184,9 @@ export function CalendarManager() {
         description="Informe os dados para sincronizar o calendário com o painel."
       >
         <CalendarForm
-          onSubmit={(values) => createMutation.mutateAsync(values)}
+          onSubmit={async (values) => {
+            await createMutation.mutateAsync(values);
+          }}
           onCancel={() => setModalOpen(false)}
         />
       </Modal>

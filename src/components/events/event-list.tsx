@@ -47,10 +47,20 @@ export function EventList({ events, loading, onEdit, onDelete }: EventListProps)
         {loading && <Spinner size="sm" />}
       </div>
       <ul className="divide-y divide-zinc-100">
-        {(loading && events.length === 0 ? Array.from({ length: 3 }) : events).map(
-          (event, index) => (
-            <li key={event?.id ?? index} className="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-              {event ? (
+        {loading && events.length === 0
+          ? Array.from({ length: 3 }).map((_, index) => (
+              <li key={index} className="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex-1">
+                  <div className="flex animate-pulse gap-3">
+                    <div className="h-4 w-32 rounded-full bg-zinc-200" />
+                    <div className="h-4 w-48 rounded-full bg-zinc-100" />
+                  </div>
+                </div>
+              </li>
+            ))
+          : events.map((event) => (
+              <li key={event.id} className="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                {event ? (
                 <>
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-3">
