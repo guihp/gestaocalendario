@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import { DashboardPage } from "@/components/events/dashboard-page";
+import { CalendarManager } from "@/components/calendars/calendar-manager";
 import { Spinner } from "@/components/ui/spinner";
 
-export default function Home() {
+export default function CalendariosPage() {
   return (
     <Suspense
       fallback={
@@ -11,7 +11,8 @@ export default function Home() {
         </div>
       }
     >
-      <DashboardPage />
+      <CalendarManager />
     </Suspense>
   );
 }
+
