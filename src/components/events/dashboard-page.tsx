@@ -30,6 +30,7 @@ import { EventCalendar } from "@/components/events/event-calendar";
 import { QuickScheduleModal } from "@/components/events/quick-schedule-modal";
 import { CreateCalendarModal } from "@/components/calendars/create-calendar-modal";
 import { Modal } from "@/components/ui/modal";
+import { DayEventsModal } from "@/components/events/day-events-modal";
 
 type FiltersState = {
   calendarId?: string;
@@ -94,6 +95,8 @@ export function DashboardPage() {
   const [isHolidayModalOpen, setHolidayModalOpen] = useState(false);
   const [holidayDate, setHolidayDate] = useState<string>("");
   const [holidayCalendarId, setHolidayCalendarId] = useState<string>("");
+  const [dayEventsModalDate, setDayEventsModalDate] = useState<Date | null>(null);
+  const [dayEventsModalEvents, setDayEventsModalEvents] = useState<CalendarEvent[]>([]);
 
   const saveEventMutation = useMutation({
     mutationFn: async ({
@@ -545,7 +548,7 @@ export function DashboardPage() {
           </div>
         </Card>
 
-        <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
+        <div className="grid gap-6">
           <EventCalendar
             month={baseMonth}
             year={baseYear}
@@ -553,6 +556,10 @@ export function DashboardPage() {
             timezone={timezone}
             onSelectEvent={handleEditEvent}
             onCreateSlot={handleCreateSlot}
+            onViewDayEvents={(date, events) => {
+              setDayEventsModalDate(date);
+              setDayEventsModalEvents(events);
+            }}
           />
           <EventList
             events={eventsQuery.data ?? []}
@@ -809,6 +816,19 @@ export function DashboardPage() {
           </div>
         </div>
       </Modal>
+
+      <DayEventsModal
+        open={dayEventsModalDate !== null}
+        date={dayEventsModalDate}
+        events={dayEventsModalEvents}
+        timezone={timezone}
+        onClose={() => {
+          setDayEventsModalDate(null);
+          setDayEventsModalEvents([]);
+        }}
+        onEdit={handleEditEvent}
+        onDelete={handleDeleteEvent}
+      />
     </div>
   );
 }
