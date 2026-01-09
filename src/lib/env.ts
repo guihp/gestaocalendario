@@ -37,6 +37,12 @@ const serverSchema = z.object({
     .default(
       "https://n8n-vkg840wg44kg4040oooo0csk.medmasters.ai/webhook/marcar-feriado-andressa-painel",
     ),
+  BLOQUEAR_MES_WEBHOOK: z
+    .string()
+    .url()
+    .default(
+      "https://n8n-vkg840wg44kg4040oooo0csk.medmasters.ai/webhook/marcar-mes-andressa-painel",
+    ),
   DEFAULT_TIMEZONE: z.string().optional().default("America/Sao_Paulo"),
 });
 
@@ -51,6 +57,7 @@ const parsedServer = serverSchema.safeParse({
   ID_AGENDAS_WEBHOOK: process.env.ID_AGENDAS_WEBHOOK,
   MARCAR_EVENTO_WEBHOOK: process.env.MARCAR_EVENTO_WEBHOOK,
   MARCAR_FERIADO_WEBHOOK: process.env.MARCAR_FERIADO_WEBHOOK,
+  BLOQUEAR_MES_WEBHOOK: process.env.BLOQUEAR_MES_WEBHOOK,
   DEFAULT_TIMEZONE: process.env.DEFAULT_TIMEZONE,
 });
 

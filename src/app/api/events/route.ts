@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { editarEvento, listarEventos, WebhookError } from "@/lib/api";
+import { editarEvento, listarEventos, marcarEvento, WebhookError } from "@/lib/api";
+import { listarCalendarios } from "@/lib/api";
 
 const eventsFilterSchema = z.object({
   calendarId: z.string().min(1, "calendarId é obrigatório"),
@@ -71,7 +72,33 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const payload = eventUpdateSchema.parse(body);
-    const result = await editarEvento({ update: payload });
+    
+    // Quando cria um evento novo, usar marcarEvento (MARCAR_EVENTO_WEBHOOK)
+    // Precisa do calendarId e calendarName
+    if (!payload.calendar_id) {
+      return NextResponse.json(
+        { error: "calendar_id é obrigatório para criar um evento" },
+        { status: 400 },
+      );
+    }
+    
+    // Buscar informações do calendário
+    const calendars = await listarCalendarios();
+    const calendar = calendars.find((cal) => cal.id === payload.calendar_id);
+    
+    if (!calendar) {
+      return NextResponse.json(
+        { error: "Calendário não encontrado" },
+        { status: 404 },
+      );
+    }
+    
+    const result = await marcarEvento({
+      calendarId: payload.calendar_id,
+      calendarName: calendar.name,
+      data: payload,
+    });
+    
     return NextResponse.json({ result }, { status: 201 });
   } catch (error) {
     return handleError(error);

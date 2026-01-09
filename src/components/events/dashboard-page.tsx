@@ -31,6 +31,7 @@ import { QuickScheduleModal } from "@/components/events/quick-schedule-modal";
 import { CreateCalendarModal } from "@/components/calendars/create-calendar-modal";
 import { Modal } from "@/components/ui/modal";
 import { DayEventsModal } from "@/components/events/day-events-modal";
+import { BlockMonthModal } from "@/components/events/block-month-modal";
 
 type FiltersState = {
   calendarId?: string;
@@ -97,6 +98,7 @@ export function DashboardPage() {
   const [holidayCalendarId, setHolidayCalendarId] = useState<string>("");
   const [dayEventsModalDate, setDayEventsModalDate] = useState<Date | null>(null);
   const [dayEventsModalEvents, setDayEventsModalEvents] = useState<CalendarEvent[]>([]);
+  const [isBlockMonthModalOpen, setBlockMonthModalOpen] = useState(false);
 
   const saveEventMutation = useMutation({
     mutationFn: async ({
@@ -239,6 +241,43 @@ export function DashboardPage() {
     },
     onError: (error: unknown) => {
       toast.error("Não foi possível adicionar o feriado", {
+        description: error instanceof Error ? error.message : undefined,
+      });
+    },
+  });
+
+  const blockMonthMutation = useMutation({
+    mutationFn: async ({
+      month,
+      year,
+      calendarId,
+    }: {
+      month: number;
+      year: number;
+      calendarId: string;
+    }) => {
+      const calendar = calendarsQuery.data?.find((cal) => cal.id === calendarId);
+      if (!calendar) {
+        throw new Error("Calendário não encontrado");
+      }
+
+      return apiFetch("/api/block-month", {
+        method: "POST",
+        body: JSON.stringify({
+          calendarId,
+          calendarName: calendar.name,
+          month,
+          year,
+        }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      toast.success("Mês bloqueado com sucesso");
+      setBlockMonthModalOpen(false);
+    },
+    onError: (error: unknown) => {
+      toast.error("Não foi possível bloquear o mês", {
         description: error instanceof Error ? error.message : undefined,
       });
     },
@@ -529,6 +568,14 @@ export function DashboardPage() {
               >
                 <Calendar className="mr-2 h-4 w-4" />
                 Adicionar feriado
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setBlockMonthModalOpen(true)}
+                disabled={!effectiveFilters.calendarId}
+                title="Bloquear mês"
+              >
+                Bloqueia Mês
               </Button>
               <Button
                 onClick={handleApplyFilters}
@@ -828,6 +875,20 @@ export function DashboardPage() {
         }}
         onEdit={handleEditEvent}
         onDelete={handleDeleteEvent}
+      />
+
+      <BlockMonthModal
+        open={isBlockMonthModalOpen}
+        calendarId={effectiveFilters.calendarId || defaultCalendarId}
+        calendarName={activeCalendar?.name}
+        onClose={() => setBlockMonthModalOpen(false)}
+        onConfirm={async ({ month, year }) => {
+          await blockMonthMutation.mutateAsync({
+            month,
+            year,
+            calendarId: effectiveFilters.calendarId || defaultCalendarId || "",
+          });
+        }}
       />
     </div>
   );

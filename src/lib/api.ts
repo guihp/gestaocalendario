@@ -7,7 +7,7 @@ import {
   ListEventsFilters,
   QuickScheduleInput,
 } from "@/types/schedule";
-import { formatDateTime, formatWithOffset, getDateKey, getDayRange, getDayRangeFromDateString } from "@/lib/date";
+import { formatDateTime, formatWithOffset, getDateKey, getDayRange, getDayRangeFromDateString, getMonthRange } from "@/lib/date";
 import { fromZonedTime } from "date-fns-tz";
 
 type WebhookEnvelope<T> = {
@@ -406,6 +406,56 @@ export async function marcarFeriado(input: {
   };
 
   const response = await postWebhook<unknown>(env.MARCAR_FERIADO_WEBHOOK, [feriado]);
+  return unwrapWebhookPayload(response);
+}
+
+export async function marcarEvento(input: {
+  calendarId: string;
+  calendarName: string;
+  data: EventUpdateInput;
+  timezone?: string;
+}) {
+  const timezone = input.data.start.timeZone ?? input.data.end.timeZone ?? input.timezone ?? env.timezone;
+  
+  const evento = {
+    calendar_id: input.calendarId,
+    calendar_name: input.calendarName,
+    titulo: input.data.summary,
+    descricao: input.data.description || "",
+    localizacao: input.data.location || "",
+    inicial: formatWithOffset(input.data.start.dateTime, "yyyy-MM-dd'T'HH:mm:ssXXX", timezone),
+    final: formatWithOffset(input.data.end.dateTime, "yyyy-MM-dd'T'HH:mm:ssXXX", timezone),
+    tipo_evento: input.data.tipo_evento,
+    data_evento: input.data.data_evento,
+    hora_evento: input.data.hora_evento,
+  };
+
+  const response = await postWebhook<unknown>(env.MARCAR_EVENTO_WEBHOOK, [evento]);
+  return unwrapWebhookPayload(response);
+}
+
+export async function bloquearMes(input: {
+  calendarId: string;
+  calendarName: string;
+  month: number;
+  year: number;
+  timezone?: string;
+}) {
+  const timezone = input.timezone ?? env.timezone;
+  
+  // Calcular o range do mês (primeiro dia às 00:00:00 até último dia às 23:59:59)
+  const { start, end } = getMonthRange(input.month, input.year, timezone);
+  
+  const bloqueio = {
+    calendar_id: input.calendarId,
+    calendar_name: input.calendarName,
+    mes: input.month,
+    ano: input.year,
+    inicial: formatWithOffset(start, "yyyy-MM-dd'T'HH:mm:ssXXX", timezone),
+    final: formatWithOffset(end, "yyyy-MM-dd'T'HH:mm:ssXXX", timezone),
+  };
+
+  const response = await postWebhook<unknown>(env.BLOQUEAR_MES_WEBHOOK, bloqueio);
   return unwrapWebhookPayload(response);
 }
 
